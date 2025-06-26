@@ -12,11 +12,26 @@ use spin::Mutex;
 
 lazy_static! {
     /// Global writer of the OS
-    pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
-        column_position: 0,
-        color_code: ColorCode::new(Color::Yellow, Color::Blue),
-        buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
-    });
+    pub static ref WRITER: Mutex<Writer> = {
+        let temp = Mutex::new(Writer {
+            column_position: 0,
+            color_code: ColorCode::new(Color::Yellow, Color::Blue),
+            buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
+        });
+        {
+            let mut writer = temp.lock();
+            let blank = ScreenChar {
+                ascii_character: b' ',
+                color_code: writer.color_code,
+            };
+            for row in 0..BUFFER_HEIGHT {
+                for col in 0..BUFFER_WIDTH {
+                    writer.buffer.chars[row][col].write(blank);
+                }
+            }
+        }
+        temp
+    };
 }
 
 /// Basic colors

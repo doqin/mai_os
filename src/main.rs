@@ -14,8 +14,10 @@ pub extern "C" fn _start() -> ! {
     // named `_start` by default
     #[cfg(test)]
     test_main();
-    println!("Hello {}", "World!");
-
+    println!("");
+    // for i in 0..200 {
+    //     println!("{}. Hello {}", i, "World!");
+    // }
     loop {}
 }
 
